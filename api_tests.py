@@ -1,48 +1,46 @@
 from api_test import API_Test
-from typing import List, Tuple, Optional
-import backdoor_interface as b
+from typing import List, Tuple, Optional, Union
 import api_interface as a
-import reponses as r
 import json
-from exceptions import BePatientException
+from exceptions import BePatientException, NotAllowedException
 
 
-def set_base_url(base_url: str):
-    a.base_url = base_url
-    b.base_url = base_url
+def set_base_url_baseline(base_url_baseline: str):
+    a.base_url_baseline = base_url_baseline
+
+
+def set_base_url_test(base_url_test: str):
+    a.base_url_test = base_url_test
 
 
 def get_tests_from_json(json_tests: dict) -> List[API_Test]:
     list_tests = []
-    for json_test in json_tests:
+    for json_test in json_tests:  # type: dict
         name = 'unknown name'
         try:
             name = json_test['name']
-            description = json_test['description']
-            if 'reload_before' in json_test:
-                reload_before = json_test['reload_before']
+            description = json_test.get('description', '')
+            auth = json_test.get('auth', False)
+            list_order_matters = json_test.get('array_order_matters', True)
+
+            list_steps: List[a.Request] = []
+
+            steps = json_test['steps']
+            if isinstance(steps, list):
+                for json_step in steps:  # type: Union[str, dict]
+                    method = json_step['method']
+                    url = json_step['url']
+                    code = json_step['code']
+                    data = json_step.get('data')
+                    list_steps.append(a.Request(url, method, code, data, list_order_matters))
+
+                list_tests.append(API_Test(name, description, auth, tuple(list_steps)))
+
+            elif isinstance(steps, str):
+                list_tests.append(API_Test(name, description, auth, steps))
+
             else:
-                reload_before = True
-
-            list_steps: List[Tuple[a.Request, Optional[r.Response]]] = []
-            for json_step in json_test['steps']:  # type: dict
-                method = json_step['method']
-                url = json_step['url']
-
-                if method == 'GET':
-                    request = a.Get(url)
-                else:
-                    raise BePatientException
-
-
-
-                if 'response' in json_step:
-                    response = json_step['response']
-                else:
-                    response = None
-
-                list_steps.append((request, response))
-            list_tests.append(API_Test(name, description, tuple(list_steps), reload_before))
+                NotAllowedException(f'Unknown type of steps: {type(steps)}')
 
         except BePatientException:
             print(f'The test {name} has steps which aren\'t implemented yet')
@@ -55,20 +53,11 @@ def get_tests_from_json(json_tests: dict) -> List[API_Test]:
 with open('api_tests.json', 'r') as fh:
     json_data = json.loads(fh.read())
 
-basic_tests: List[API_Test] = get_tests_from_json(json_data["basic_tests"])
-users_tests: List[API_Test] = get_tests_from_json(json_data["users_tests"])
-petitions_tests: List[API_Test] = get_tests_from_json(json_data["petitions_tests"])
-signatures_tests: List[API_Test] = get_tests_from_json(json_data["signatures_tests"])
-categories_tests: List[API_Test] = get_tests_from_json(json_data["categories_tests"])
-
-
-# Basic Tests
-# basic_tests.append(API_Test('Test site connection', 'GET to the root url (is the site up)', ((a.Get('/../../'), None),), False))
-
-
-# User Tests
-# users_tests.append(API_Test('User GET (unauthed)', '', ((a.Get('/users/1'), r.Response(200, {'name': 'Eleanor Shellstrop', 'city': 'Phoenix', 'country': 'USA'})),)))
+users_tests: List[API_Test] = get_tests_from_json(json_data.get("users_tests"))
+petitions_tests: List[API_Test] = get_tests_from_json(json_data.get("petitions_tests"))
+signatures_tests: List[API_Test] = get_tests_from_json(json_data.get("signatures_tests"))
+categories_tests: List[API_Test] = get_tests_from_json(json_data.get("categories_tests"))
 
 
 # All Tests
-all_tests = basic_tests + users_tests + petitions_tests + signatures_tests + categories_tests
+all_tests = users_tests + petitions_tests + signatures_tests + categories_tests

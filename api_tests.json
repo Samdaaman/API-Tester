@@ -1,35 +1,361 @@
 {
-  "basic_tests": [
-    {
-      "name": "Test site connection",
-      "description": "GET to the root url (is the site up)",
-      "steps": [
-        {
-          "method": "GET",
-          "url": "/../../"
-        }
-      ],
-      "reload_before": false
-    }
-  ],
   "users_tests": [
     {
+      "name": "Successful User Register",
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 201,
+          "data": {
+              "name": "Test1",
+              "email": "test1@uclive.ac.nz",
+              "password": "letmein",
+              "city": "Christchurch",
+              "country": "New Zealand"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 201,
+          "data": {
+              "name": "Test2",
+              "email": "test2@uclive.ac.nz",
+              "password": "letmein"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "Invalid User Register",
+      "description": "tests email in use, email formatting and correct parameters",
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "name": "Test1",
+              "email": "pillboi@ymail.com",
+              "password": "letmein"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "name": "Test2",
+              "email": "test2uclive.ac.nz",
+              "password": "letmein"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "name": "Test3",
+              "email": "test2@uclive.ac.nz"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "name": "Test4",
+              "password": "letmein"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "email": "test5@uclive.ac.nz",
+              "password": "letmein"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/register",
+          "code": 400,
+          "data": {
+              "name": "Test6",
+              "email": "test6@uclive.ac.nz",
+              "password": ""
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User login",
+      "steps": "user-login"
+    },
+    {
+      "name": "Invalid user login",
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/users/login",
+          "code": 400,
+          "data": {
+            "email": "not-real",
+            "password": "yeet"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/login",
+          "code": 400,
+          "data": {
+            "email": "e.shellstrop@hotmail.com",
+            "password": "not-the-right-password"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/login",
+          "code": 400,
+          "data": {
+            "email": "e.shellstrop@hotmail.com"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/users/login",
+          "code": 400,
+          "data": {
+            "password": "letmein"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User successful logout",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/users/logout",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User unsuccessful logout",
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/users/logout",
+          "code": 401
+        }
+      ]
+    },
+    {
       "name": "User GET (unauthed)",
-      "description": "",
       "steps": [
         {
           "method": "GET",
           "url": "/users/1",
-          "response": {
-            "name": "Eleanor Shellstrop",
-            "city": "Phoenix",
-            "country":"USA"
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User GET (authed)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/users/1",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User GET (authed as different)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/users/2",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User GET 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/users/99",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "User register then login",
+      "steps": "user-register-then-login"
+    },
+    {
+      "name": "User PATCH Successful (can't check PW change)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 200,
+          "data": {
+            "name": "new_name",
+            "email": "new_email@uclive.ac.nz",
+            "password": "new_password",
+            "currentPassword": "legitsnack",
+            "city": "new_city",
+            "country": "new_country"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User PATCH Bad Request",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "name": "new_name",
+            "email": "new_emailuclive.ac.nz"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "name": "new_name",
+            "email": "new_email@uclive.ac.nz",
+            "password": "new_password",
+            "city": "new_city",
+            "country": "new_country"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {}
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "email": "C.aNaGoNye@stJoHNs.EdU.Au"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User PATCH - 1) fails baseline server side",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "currentPassword": "legitsnack",
+            "password": "legitsnack"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User PATCH - 2) fails baseline server side",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "name": "new_name",
+            "email": "new_email@uclive.ac.nz",
+            "currentPassword": "legitsnack",
+            "city": "new_city",
+            "country": "new_country"
+          }
+        }
+      ]
+    },
+    {
+      "name": "User PATCH unauthorised",
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 401
+        }
+      ]
+    },
+    {
+      "name": "User PATCH forbidden",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/2",
+          "code": 403,
+          "data": {
+            "name": "new_name"
           }
         }
       ]
     }
   ],
   "signatures_tests": [],
-  "petitions_tests": [],
+  "petitions_tests": [
+    {
+      "name": "Get all petitions (unordered)",
+      "array_order_matters": false,
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions",
+          "code": 200
+        }
+      ]
+    }
+  ],
   "categories_tests": []
 }
