@@ -1,0 +1,44 @@
+[
+  {
+    "basic_tests": [
+      {
+        "name": "Test site connection",
+        "description": "GET to the root url (is the site up)",
+        "steps": [
+          {
+            "method": "GET",
+            "url": "/../../"
+          }
+        ],
+        "reload_before": false
+      }
+    ]
+  },
+  {
+    "user_tests": [
+      {
+        "name": "User GET (unauthed)",
+        "description": "",
+        "steps": [
+          {
+            "method": "GET",
+            "url": "/users/1",
+            "response": {
+              "name": "Eleanor Shellstrop",
+              "city": "Phoenix",
+              "country":"USA"
+            }
+          }
+        ]
+      },
+      {
+
+      },
+      {
+
+      }
+
+
+    ]
+  }
+]
