@@ -110,7 +110,7 @@ def _merge_dicts(dict1: dict, dict2: dict):
 
 
 class Request:
-    def __init__(self, rel_url: str, method: str, code: int, data: Union[None, str, dict], list_order_matters: bool = False, auth: bool = False):
+    def __init__(self, rel_url: str, method: str, code: Optional[int], data: Union[None, str, dict], list_order_matters: bool = False, auth: bool = False):
         self.rel_url = rel_url
         self.method = method
         self.code = code
@@ -125,7 +125,7 @@ class Request:
         self.response_test = self.send(baseline=False, expected_code=self.code, use_auth=use_auth)
         self._check_responses()
 
-    def send(self, baseline: bool, expected_code: int, use_auth: bool = False) -> Response:
+    def send(self, baseline: bool, expected_code: Optional[int], use_auth: bool = False) -> Response:
         url = (base_url_baseline if baseline else base_url_test) + self.rel_url
         auth_header = {} if not use_auth else {'X-Authorization': AUTH_TOKEN}
 
