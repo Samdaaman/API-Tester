@@ -257,10 +257,7 @@
           "code": 400,
           "data": {
             "name": "new_name",
-            "email": "new_email@uclive.ac.nz",
-            "password": "new_password",
-            "city": "new_city",
-            "country": "new_country"
+            "password": "new_password"
           }
         },
         {
@@ -274,7 +271,18 @@
           "url": "/users/1",
           "code": 400,
           "data": {
+            "name": "new_name",
             "email": "C.aNaGoNye@stJoHNs.EdU.Au"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "name": "new_name",
+            "password": "",
+            "currentPassword": "legitsnack"
           }
         },
         {
@@ -287,21 +295,6 @@
     },
     {
       "name": "User PATCH - 1) fails baseline server side",
-      "auth": true,
-      "steps": [
-        {
-          "method": "PATCH",
-          "url": "/users/1",
-          "code": 400,
-          "data": {
-            "currentPassword": "legitsnack",
-            "password": "legitsnack"
-          }
-        }
-      ]
-    },
-    {
-      "name": "User PATCH - 2) fails baseline server side",
       "auth": true,
       "steps": [
         {
