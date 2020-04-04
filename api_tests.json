@@ -214,7 +214,7 @@
       "steps": "user-register-then-login"
     },
     {
-      "name": "User PATCH Successful (can't check PW change)",
+      "name": "User PATCH Successful 1 (can't check PW change)",
       "auth": true,
       "steps": [
         {
@@ -228,6 +228,46 @@
             "currentPassword": "legitsnack",
             "city": "new_city",
             "country": "new_country"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User PATCH Successful 2 (can't check PW change)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 200,
+          "data": {
+            "country": "USA"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User PATCH Successful 3 (can't check PW change)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 200,
+          "data": {
+            "email": "e.shellstrop@hotmail.com"
           }
         },
         {
@@ -264,6 +304,14 @@
           "method": "PATCH",
           "url": "/users/1",
           "code": 400,
+          "data": {
+            "password": "new_password"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
           "data": {}
         },
         {
@@ -286,6 +334,41 @@
           }
         },
         {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "currentPassword": "legitsnack"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "currentPassword": "not-the-right-password"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "name": "new_name",
+            "currentPassword": "legitsnack",
+            "password": ""
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 400,
+          "data": {
+            "currentPassword": "legitsnack",
+            "password": ""
+          }
+        },
+        {
           "method": "POST",
           "url": "/executeSql",
           "code": 200,
@@ -294,25 +377,50 @@
       ]
     },
     {
-      "name": "User PATCH - 1) fails baseline server side",
+      "name": "User PATCH without password parameter 1",
       "auth": true,
       "steps": [
         {
           "method": "PATCH",
           "url": "/users/1",
-          "code": 400,
+          "code": 200,
           "data": {
             "name": "new_name",
-            "email": "new_email@uclive.ac.nz",
-            "currentPassword": "legitsnack",
-            "city": "new_city",
-            "country": "new_country"
+            "currentPassword": "legitsnack"
           }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
+        }
+      ]
+    },
+    {
+      "name": "User PATCH without password parameter 2",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/users/1",
+          "code": 200,
+          "data": {
+            "name": "new_name",
+            "currentPassword": "not-the-right-password"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT user_id, name, email, auth_token, city, country, photo_filename FROM User;"
         }
       ]
     },
     {
       "name": "User PATCH unauthorised",
+      "auth": false,
       "steps": [
         {
           "method": "PATCH",
@@ -334,9 +442,337 @@
           }
         }
       ]
+    },
+    {
+      "name": "User Photo GET",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo GET 404",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/users/99/photo",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE 401",
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 401
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE 403",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/2/photo",
+          "code": 403
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/99/photo",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE then GET 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE THEN PUT 201 THEN GET",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 201,
+          "data": "./res/photo1.png"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 201,
+          "data": "./res/photo2.jpg"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 201,
+          "data": "./res/photo3.gif"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo DELETE then PUT 400 (bmp) then GET 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 400,
+          "data": "./res/photo4.bmp"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "User Photo PUT 200 then GET 200",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 200,
+          "data": "./res/photo1.png"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 200,
+          "data": "./res/photo2.jpg"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 200,
+          "data": "./res/photo3.gif"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo PUT 401 then GET 200",
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/users/1/photo",
+          "code": 401,
+          "data": "./res/photo2.jpg"
+        },
+        {
+          "method": "GET",
+          "url": "/users/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo PUT 403 then GET 200",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/users/2/photo",
+          "code": 403,
+          "data": "./res/photo2.jpg"
+        },
+        {
+          "method": "GET",
+          "url": "/users/2/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "User Photo PUT 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/users/99/photo",
+          "code": 404,
+          "data": "./res/photo2.jpg"
+        }
+      ]
     }
   ],
-  "signatures_tests": [],
+  "signatures_tests": [
+    {
+      "name": "Signatures GET",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/1/signatures",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Signatures GET 404",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/99/signatures",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "Signatures POST (sign)",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions/6/signatures",
+          "code": 201
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT signatory_id, petition_id FROM Signature;"
+        }
+      ]
+    },
+    {
+      "name": "Signatures POST (sign) 401",
+      "auth": false,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions/2/signatures",
+          "code": 401
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT signatory_id, petition_id FROM Signature;"
+        }
+      ]
+    },
+    {
+      "name": "Signatures POST (sign) 403",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions/1/signatures",
+          "code": 403
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT signatory_id, petition_id FROM Signature;"
+        }
+      ]
+    },
+    {
+      "name": "Signatures POST (sign) 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions/99/signatures",
+          "code": 404
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT signatory_id, petition_id FROM Signature;"
+        }
+      ]
+    }
+  ],
   "petitions_tests": [
     {
       "name": "Get all petitions (unordered)",
@@ -348,7 +784,450 @@
           "code": 200
         }
       ]
+    },
+    {
+      "name": "Get all petitions (query parameters)",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&startIndex=1",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&count=1",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&q=Make",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&categoryId=1",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&authorId=2",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_ASC&categoryId=7",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=ALPHABETICAL_DESC&categoryId=7",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=SIGNATURES_ASC&categoryId=7&q=UC",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=SIGNATURES_DESC&categoryId=7&q=UC",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?categoryId=7&q=UC",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "GET all petitions 400",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions?categoryId=99",
+          "code": 400
+        },
+        {
+          "method": "GET",
+          "url": "/petitions?sortBy=yeet",
+          "code": 400
+        }
+      ]
+    },
+    {
+      "name": "POST petitions",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions",
+          "code": 201,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT * FROM Petition WHERE petition_id = 13;"
+        }
+      ]
+    },
+    {
+      "name": "POST petitions 400",
+      "auth": true,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions",
+          "code": 400,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2019-04-23 18:25:43.511"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/petitions",
+          "code": 400,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 99,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT * FROM Petition WHERE petition_id > 12;"
+        }
+      ]
+    },
+    {
+      "name": "POST petitions 401",
+      "auth": false,
+      "steps": [
+        {
+          "method": "POST",
+          "url": "/petitions",
+          "code": 401,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        },
+        {
+          "method": "POST",
+          "url": "/executeSql",
+          "code": 200,
+          "data": "SELECT * FROM Petition WHERE petition_id > 12;"
+        }
+      ]
+    },
+    {
+      "name": "Detailed petition GET",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/1",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Detailed petition GET 404",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/99",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "Petition PATCH",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/petitions/1",
+          "code": 200,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petition PATCH 400",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/petitions/1",
+          "code": 400,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2012-04-23 18:25:43.511"
+          }
+        },
+        {
+          "method": "PATCH",
+          "url": "/petitions/1",
+          "code": 400,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 99,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petition PATCH 401",
+      "auth": false,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/petitions/1",
+          "code": 401,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petition PATCH 403",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/petitions/2",
+          "code": 403,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petition PATCH 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PATCH",
+          "url": "/petitions/99",
+          "code": 404,
+          "data": {
+            "title": "Increase the education budget",
+            "description": "Schools need more money.",
+            "categoryId": 1,
+            "closingDate": "2021-04-23 18:25:43.511"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Petition DELETE then GET 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/petitions/1",
+          "code": 200
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/1",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "Petition DELETE 401 then GET 200",
+      "auth": false,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/petitions/1",
+          "code": 401
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/1",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Petition DELETE 403 then GET 200",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/petitions/2",
+          "code": 403
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/2",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Petition DELETE 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "DELETE",
+          "url": "/petitions/99",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo GET",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo GET 404",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/99/photo",
+          "code": 404
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo PUT then GET",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/petitions/1/photo",
+          "code": 200,
+          "data": "./res/photo1.png"
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/petitions/1/photo",
+          "code": 200,
+          "data": "./res/photo2.jpg"
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/1/photo",
+          "code": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/petitions/1/photo",
+          "code": 200,
+          "data": "./res/photo3.gif"
+        },
+        {
+          "method": "GET",
+          "url": "/petitions/1/photo",
+          "code": 200
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo PUT 400",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/petitions/1/photo",
+          "code": 400,
+          "data": "./res/photo4.bmp"
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo PUT 401",
+      "auth": false,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/petitions/1/photo",
+          "code": 401,
+          "data": "./res/photo1.png"
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo PUT 403",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/petitions/2/photo",
+          "code": 403,
+          "data": "./res/photo1.png"
+        }
+      ]
+    },
+    {
+      "name": "Petition Photo PUT 404",
+      "auth": true,
+      "steps": [
+        {
+          "method": "PUT",
+          "url": "/petitions/99/photo",
+          "code": 404,
+          "data": "./res/photo1.png"
+        }
+      ]
     }
   ],
-  "categories_tests": []
+  "categories_tests": [
+    {
+      "name": "Categories GET",
+      "steps": [
+        {
+          "method": "GET",
+          "url": "/petitions/categories",
+          "code": 200
+        }
+      ]
+    }
+  ]
 }

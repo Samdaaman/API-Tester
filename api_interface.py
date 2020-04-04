@@ -58,10 +58,12 @@ def set_auth_tokens():
 def _compare_lists(list1: list, list2: list, list_order_matters: bool, errors: list):
     if len(list1) != len(list2):
         errors.append(f'Expected arrays to have the same size:\n{list1}\n{list2}')
+        return
 
     if list_order_matters:
         for i in range(len(list1)):
             _compare_json_content(list1[i], list2[i], list_order_matters, errors)
+
     else:
         for item2 in list2:
             test_errors = []
@@ -92,6 +94,9 @@ def _compare_json_content(json1: Union[list, dict], json2: Union[list, dict], li
     elif isinstance(json1, list) and isinstance(json2, list):
         _compare_lists(json1, json2, list_order_matters, errors)
     elif isinstance(json1, (str, int)) and isinstance(json2, (int, str)):
+        if isinstance(json1, str) and isinstance(json2, str):
+            json1 = json1.replace('\r', '')
+            json2 = json2.replace('\r', '')
         if json1 != json2:
             errors.append(f'Expected value "{json2}" to equal "{json1}"')
 
@@ -145,6 +150,12 @@ class Request:
 
         elif self.method == 'PATCH':
             response = patch(url, json=self.data, headers=auth_header)
+
+        elif self.method == 'PUT':
+            mime_type = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'gif': 'image/gif', 'bmp': 'image/bmp'}[self.data.split('.')[-1]]
+            headers = _merge_dicts(auth_header, {'Content-Type': mime_type})
+            with open(self.data, 'rb') as fh:
+                response = put(url, data=fh.read(), headers=headers)
 
         else:
             raise BePatientException(f'Method {self.method}')
