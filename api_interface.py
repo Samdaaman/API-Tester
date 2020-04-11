@@ -164,7 +164,7 @@ class Request:
             if expected_code != response.status_code:
                 raise StatusCodeMissMatchException(url, expected_code, response.status_code, self.data)
 
-            if not response.reason.startswith(_lookup_code(expected_code)):
+            if not response.reason.replace('Petition ', '').startswith(_lookup_code(expected_code)):
                 raise StatusMessageMissMatchException(url, _lookup_code(expected_code), response.reason, self.data)
 
         return response
